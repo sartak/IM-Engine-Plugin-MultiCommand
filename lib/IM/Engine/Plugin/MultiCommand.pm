@@ -18,5 +18,27 @@ has separator => (
     default  => sub { ';;' }
 );
 
+sub new_rules {} # satisfy requirement
+
+sub augment_dispatcher {
+    my $self = shift;
+    my $args = shift;
+
+    my $dispatcher = $args->{dispatcher};
+    my $separator = $self->separator;
+
+    # XXX: need to add unshift_rules to Path::Dispatcher :)
+
+    unshift @{ $dispatcher->{rules} }, (
+        Path::Dispatcher::Rule::Regex->new(
+            regex => qr/(.*?)\s*\Q$separator\E\s*(.*)/,
+            block => sub {
+                warn "$1";
+                warn "$2";
+            },
+        ),
+    );
+}
+
 1;
 
