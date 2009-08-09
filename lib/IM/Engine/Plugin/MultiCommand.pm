@@ -21,11 +21,9 @@ has separator => (
 sub new_rules {} # satisfy requirement
 
 sub augment_dispatcher {
-    my $self = shift;
-    my $args = shift;
-
-    my $dispatcher = $args->{dispatcher};
-    my $separator = $self->separator;
+    my $self       = shift;
+    my $dispatcher = shift;
+    my $separator  = $self->separator;
 
     # XXX: need to add unshift_rules to Path::Dispatcher :)
 
