@@ -33,9 +33,10 @@ sub augment_dispatcher {
 
     unshift @{ $dispatcher->{_rules} }, (
         Path::Dispatcher::Rule::Regex->new(
-            regex => qr{^(.*?)\s*\Q$separator\E\s*(.*)$}sm,
+            regex => qr{\s*\Q$separator\E\s*},
             block => sub {
                 my $incoming = shift;
+                my @commands = split /\s*\Q$separator\E\s*/, $_;
 
                 return join "\n---\n", map {
                     my $message = $incoming->meta->clone_object(
@@ -45,7 +46,7 @@ sub augment_dispatcher {
 
                     my $reply = $weak_dispatcher_plugin->incoming($message);
                     $reply->plaintext
-                } ($1, $2);
+                } @commands;
             },
         ),
     );
