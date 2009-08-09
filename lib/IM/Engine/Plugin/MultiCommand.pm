@@ -1,6 +1,8 @@
 package IM::Engine::Plugin::MultiCommand;
 use Moose;
 use Moose::Util::TypeConstraints;
+use Scalar::Util 'weaken';
+use List::Util 'first';
 extends 'IM::Engine::Plugin';
 
 our $VERSION = '0.01';
@@ -27,15 +29,25 @@ sub augment_dispatcher {
 
     # XXX: need to add unshift_rules to Path::Dispatcher :)
 
+    my $weak_dispatcher_plugin = first { $_->isa('IM::Engine::Plugin::Dispatcher') } $self->engine->plugins;
+
     unshift @{ $dispatcher->{_rules} }, (
         Path::Dispatcher::Rule::Regex->new(
             regex => qr{^(.*?)\s*\Q$separator\E\s*(.*)$}sm,
             block => sub {
-                warn "$1";
-                warn "$2";
+                my $incoming = shift;
+                my $command = $incoming->meta->clone_object($incoming, plaintext => $1);
+                my $rest    = $incoming->meta->clone_object($incoming, plaintext => $2);
+
+                return (
+                    $weak_dispatcher_plugin->incoming($command),
+                    $weak_dispatcher_plugin->incoming($rest),
+                );
             },
         ),
     );
+
+    weaken($weak_dispatcher_plugin);
 }
 
 1;
