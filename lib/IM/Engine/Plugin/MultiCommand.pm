@@ -38,7 +38,7 @@ sub augment_dispatcher {
                     );
 
                     my $reply = $weak_dispatcher_plugin->incoming($message);
-                    $reply->plaintext
+                    $reply ? $reply->plaintext : ''
                 } @commands;
             },
         ),
