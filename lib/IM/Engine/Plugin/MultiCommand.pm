@@ -36,13 +36,16 @@ sub augment_dispatcher {
             regex => qr{^(.*?)\s*\Q$separator\E\s*(.*)$}sm,
             block => sub {
                 my $incoming = shift;
-                my $command = $incoming->meta->clone_object($incoming, plaintext => $1);
-                my $rest    = $incoming->meta->clone_object($incoming, plaintext => $2);
 
-                return (
-                    $weak_dispatcher_plugin->incoming($command),
-                    $weak_dispatcher_plugin->incoming($rest),
-                );
+                return join "\n---\n", map {
+                    my $message = $incoming->meta->clone_object(
+                        $incoming,
+                        plaintext => $_,
+                    );
+
+                    my $reply = $weak_dispatcher_plugin->incoming($message);
+                    $reply->plaintext
+                } ($1, $2);
             },
         ),
     );
