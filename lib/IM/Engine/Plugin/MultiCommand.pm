@@ -27,11 +27,9 @@ sub augment_dispatcher {
     my $dispatcher = shift;
     my $separator  = $self->separator;
 
-    # XXX: need to add unshift_rules to Path::Dispatcher :)
-
     my $weak_dispatcher_plugin = first { $_->isa('IM::Engine::Plugin::Dispatcher') } $self->engine->plugins;
 
-    unshift @{ $dispatcher->{_rules} }, (
+    $dispatcher->unshift_rule(
         Path::Dispatcher::Rule::Regex->new(
             regex => qr{\s*\Q$separator\E\s*},
             block => sub {
